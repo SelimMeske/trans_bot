@@ -156,7 +156,9 @@ class Translator_Jomi:
                     translated = translator.translate(clean_text_box, lang_tgt='hr')
                     self.text = self.text.replace(clean_text_box, translated)
                 else:
-                    continue
+                    i = i.replace(search_for_shortcode.group(0), '')
+                    translated = translator.translate(i, lang_tgt='hr')
+                    self.text = self.text.replace(i, translated)
             else:
                 translated = translator.translate(i, lang_tgt='hr')
                 self.text = self.text.replace(i, translated)
