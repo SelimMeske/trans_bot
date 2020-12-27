@@ -119,8 +119,6 @@ With the practicality and ease of use, a jigsaw can be <strong>one of the best t
 </ul>
 """
 
-
-
 class Translator_Jomi:
     def __init__(self, text):
         self.text = text
@@ -140,20 +138,25 @@ class Translator_Jomi:
 
         for i in splited_text:
             # Search for image
-            search_for_image = re.match(r'<img.*/>', i, re.MULTILINE)
-            # Search for box
-            search_for_box = re.match(r'\[box.*\[/box]', i, re.MULTILINE)
+            search_for_image = re.search(r'<img.*/>', i, re.MULTILINE)
+
+            # Search for shortcode
+            search_for_shortcode = re.search(r'\[.*]', i, re.MULTILINE)
 
             if search_for_image:
                 clean_image = i.replace(search_for_image.group(0), '')
                 translated = translator.translate(clean_image, lang_tgt='hr')
                 self.text = self.text.replace(clean_image, translated)
-            elif search_for_box:
-                clean_closing_box = i.replace('[/box]', '')
-                clean_opening_box = re.match(r'\[box.*]', i, re.MULTILINE)
-                clean_box = clean_closing_box.replace(clean_opening_box.group(0), '')
-                translated = translator.translate(clean_box, lang_tgt='hr')
-                self.text = self.text.replace(clean_box, translated)
+            elif search_for_shortcode:
+                is_box = re.search(r'\[box.*\[/box]', i, re.MULTILINE)
+                if is_box:
+                    i = i.replace('[/box]', '')
+                    remove_box = re.search(r'\[.*]', i, re.MULTILINE)
+                    clean_text_box = i.replace(remove_box.group(0), '')
+                    translated = translator.translate(clean_text_box, lang_tgt='hr')
+                    self.text = self.text.replace(clean_text_box, translated)
+                else:
+                    continue
             else:
                 translated = translator.translate(i, lang_tgt='hr')
                 self.text = self.text.replace(i, translated)
@@ -165,4 +168,5 @@ text = Translator_Jomi(example_text)
 text.clean_a()
 text.clean_strong()
 text.translations()
+
 print(text.text)
